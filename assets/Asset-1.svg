@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1{fill:currentColor}
+    </style>
+  </defs>
+  <title>gemini-svg.svg</title>
+  <g id="Asset_1" data-name="Asset 1">
+    <g>
+      <path d="M0 512 L156.098 0 L218.537 0 L374.634 512 L293.463 512 L249.756 358.4 L124.878 358.4 L81.171 512 Z M156.098 187.733 L187.317 281.6 L106.146 281.6 Z" class="cls-1"/>
+      <path d="M330.927 358.4 L437.073 512 L512 512 L393.366 315.733 Z" class="cls-1"/>
+    </g>
+  </g>
+</svg>
