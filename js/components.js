@@ -118,19 +118,51 @@ function projectCardHTML(p, index) {
   </article>`;
 }
 
+const BRAND_SVG = `<svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><g><path fill="currentColor" d="M0 512 L156.098 0 L218.537 0 L374.634 512 L293.463 512 L249.756 358.4 L124.878 358.4 L81.171 512 Z M156.098 187.733 L187.317 281.6 L106.146 281.6 Z"/><path fill="currentColor" d="M330.927 358.4 L437.073 512 L512 512 L393.366 315.733 Z"/></g></svg>`;
+
 function renderNav(mountId) {
   const mount = document.getElementById(mountId);
   if (!mount) return;
   mount.innerHTML = `<nav class="nav" aria-label="Primary"><div class="nav-inner">
-    <a class="wordmark" href="index.html" aria-label="${escapeHTML(SITE.name)} — home"><svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true"><g><path fill="currentColor" d="M0 512 L156.098 0 L218.537 0 L374.634 512 L293.463 512 L249.756 358.4 L124.878 358.4 L81.171 512 Z M156.098 187.733 L187.317 281.6 L106.146 281.6 Z"/><path fill="currentColor" d="M330.927 358.4 L437.073 512 L512 512 L393.366 315.733 Z"/></g></svg><span class="wm-dot">.</span></a>
+    <a class="wordmark" href="index.html" aria-label="${escapeHTML(SITE.name)} — home">${BRAND_SVG}<span class="wm-dot">.</span></a>
     <ul class="nav-links" id="nav-links">
       ${NAV.map((n) => `<li><a href="${n.href.startsWith("#") ? "index.html" + n.href : n.href}">${escapeHTML(n.label)}</a></li>`).join("")}
       <li><a href="${SITE.linkedin}" rel="noopener">LinkedIn ↗</a></li>
     </ul>
     <a class="nav-cta" href="mailto:${SITE.email}">Contact</a>
     <button class="theme-btn" id="theme-btn" type="button" aria-pressed="false" aria-label="Switch to dark mode"><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
-    <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="nav-links">Menu</button>
-  </div></nav>`;
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="menu-overlay">Menu</button>
+  </div></nav>
+  <div class="menu-overlay" id="menu-overlay" role="dialog" aria-modal="true" aria-label="Site menu" aria-hidden="true">
+    <div class="menu-panel">
+      <div class="menu-top">
+        <a class="wordmark" href="index.html" aria-label="${escapeHTML(SITE.name)} — home">${BRAND_SVG}<span class="wm-dot">.</span></a>
+        <button class="menu-close" id="menu-close" type="button" aria-label="Close menu">
+          <span>Close</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <nav class="menu-nav" aria-label="Mobile menu">
+        <ul>
+          ${NAV.map((n, i) => `<li style="--i:${i}"><a href="${n.href.startsWith("#") ? "index.html" + n.href : n.href}"><span class="menu-no" aria-hidden="true">0${i + 1}</span><span class="menu-label">${escapeHTML(n.label)}</span><span class="menu-arrow" aria-hidden="true">→</span></a></li>`).join("")}
+          <li style="--i:${NAV.length}"><a href="${SITE.linkedin}" rel="noopener"><span class="menu-no" aria-hidden="true">0${NAV.length + 1}</span><span class="menu-label">LinkedIn</span><span class="menu-arrow" aria-hidden="true">↗</span></a></li>
+        </ul>
+      </nav>
+      <div class="menu-foot">
+        <p class="menu-kicker">Get in touch</p>
+        <a href="mailto:${SITE.email}">${SITE.email}</a>
+        <a href="tel:${SITE.phone}">${SITE.phoneDisplay}</a>
+        <p class="menu-loc">${escapeHTML(SITE.availability)}</p>
+      </div>
+    </div>
+  </div>`;
+  // Hoist the menu layer to <body> so its fixed z-index competes at the root
+  // instead of being trapped inside the nav's stacking context.
+  const overlayLayer = mount.querySelector("#menu-overlay");
+  if (overlayLayer) {
+    if ("inert" in overlayLayer) overlayLayer.inert = true;
+    document.body.appendChild(overlayLayer);
+  }
   const tb = document.getElementById("theme-btn");
   const syncTheme = () => {
     const dark = document.documentElement.dataset.theme === "dark";
@@ -149,18 +181,59 @@ function renderNav(mountId) {
   });
   if (tb) syncTheme();
   const btn = document.getElementById("menu-btn");
-  const links = document.getElementById("nav-links");
-  btn?.addEventListener("click", () => {
-    const open = links.classList.toggle("open");
-    btn.setAttribute("aria-expanded", String(open));
-    btn.textContent = open ? "Close" : "Menu";
-  });
-  links?.addEventListener("click", (e) => {
-    if (e.target.closest("a")) {
-      links.classList.remove("open");
-      btn.setAttribute("aria-expanded", "false");
-      btn.textContent = "Menu";
+  const overlay = document.getElementById("menu-overlay");
+  const closeBtn = document.getElementById("menu-close");
+  let lastFocus = null;
+  const focusables = () =>
+    overlay ? Array.from(overlay.querySelectorAll('a[href], button:not([disabled])')) : [];
+  function setMenu(open) {
+    if (!overlay) return;
+    overlay.classList.toggle("is-open", open);
+    overlay.setAttribute("aria-hidden", String(!open));
+    if ("inert" in overlay) overlay.inert = !open;
+    document.body.classList.toggle("menu-open", open);
+    btn?.setAttribute("aria-expanded", String(open));
+    if (btn) btn.textContent = open ? "Close" : "Menu";
+    if (open) {
+      lastFocus = document.activeElement;
+      const first =
+        overlay.querySelector(".menu-nav a") || focusables()[0];
+      if (first) setTimeout(() => first.focus(), 80);
+    } else if (lastFocus && typeof lastFocus.focus === "function") {
+      lastFocus.focus();
+      lastFocus = null;
     }
+  }
+  btn?.addEventListener("click", () => setMenu(!overlay.classList.contains("is-open")));
+  closeBtn?.addEventListener("click", () => setMenu(false));
+  // Selecting a destination closes the layer, then the browser follows the link.
+  overlay?.addEventListener("click", (e) => {
+    if (e.target.closest("a")) setMenu(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (!overlay || !overlay.classList.contains("is-open")) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setMenu(false);
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const items = focusables();
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+  // If the viewport grows past the mobile breakpoint, the desktop nav takes
+  // over: clear the layer + scroll lock instead of leaving a stale open state.
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 640 && overlay?.classList.contains("is-open")) setMenu(false);
   });
 }
 

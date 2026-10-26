@@ -69,7 +69,7 @@ const SITE = {
   email: "velidiabhinav12@gmail.com",
   phone: "+918830535069",
   phoneDisplay: "+91 88305 35069",
-  linkedin: "https://www.linkedin.com/in/abhinav-velidi",
+  linkedin: "https://www.linkedin.com/in/abhinav-velidi-108aa3253/",
   resume: "https://tinyurl.com/abhinav-velidi-resume",
   availability: "Based in India · Open to opportunities",
 };

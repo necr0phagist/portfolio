@@ -149,6 +149,20 @@ components pick it up automatically by using the tokens, never hardcoded
 colors. Photos are gently dimmed (never inverted); the contact card stays
 dark in both modes.
 
+## Mobile menu overlay
+
+Under 640px the header nav collapses to a Menu button. Tapping it drops a
+full-screen `#menu-overlay` layer (`z-index: 200`) over the page: its own
+brand row with Close, the section links from `NAV` as large numbered rows,
+plus email, phone and availability. It is appended to `<body>` at runtime so
+it always sits above `main`, not inside the nav's stacking context. Selecting
+a link closes the layer and follows it. Escape closes, focus moves to the
+first link on open and returns to the Menu button on close, Tab is trapped
+inside while open, and body scroll is locked. The button tracks state with
+`aria-expanded`; the panel is `inert` and `aria-hidden` while closed. The
+slide-down is disabled by the global `prefers-reduced-motion` rule, and the
+layer closes itself if the viewport grows past the breakpoint.
+
 ## Side line-navigation
 
 Fixed right-edge markers (Work / About / Process / Contact) with scroll-spy
